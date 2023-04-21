@@ -1,0 +1,21 @@
+{% extends "base.j2" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+    <div class="container">
+      <h1>Welcome to the Ohio Legal App!</h1>
+      <p>Explore the state of Ohio's primary legal documents.</p>
+  {% if articles.data %}
+    {% with %}
+      {% set sdata = articles.data %}
+      {% include "toc_item.j2" %}
+    {% endwith %}
+  {% else %}
+      <p>
+        <em>No data found</em>
+      </p>
+  {% endif %}
+    </div>
+{% endblock %}
+
