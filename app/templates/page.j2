@@ -1,13 +1,14 @@
-<!-- index.j2 -->
 {% extends "base.j2" %}
 
 {% block title %}Home{% endblock %}
 
 {% block content %}
+    <!-- page.j2 -->
     <div class="container">
       <a href="/{{ path }}">{{ path }}</a>{% for dr in breadcrumb %}&nbsp;&gt;&nbsp;<a href="/{{ path }}/{{ breadcrumb[:loop.index]|join("/") }}">{{ dr }}</a>{% endfor %}
-  {% for section, title in titles %}
-      <h2><a href="{{ base_path }}/{{ section }}">{{ section }}{% if title %}&nbsp;|&nbsp;{{ title }}{% endif %}</a></h2>
+      <h3>{% if page_title %}{{ page_title }}</h3>{% endif %}
+  {% for pg in sdata.ps %}
+      <p{% if pg.tabs %} style="margin-left: {{ pg.tabs * 2 }}em;"{% endif %}>{{ pg.text | replace('\r', '<br />') }}</p>
   {% endfor %}
     </div>
 {% endblock %}

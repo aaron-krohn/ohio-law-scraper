@@ -9,6 +9,35 @@ from bs4 import BeautifulSoup as bs
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+
+class TreeSeeker:
+
+    def __init__(self, tree_data):
+
+        self.data = tree_data
+
+        self.path = []
+        self.node_ref = None
+
+
+    def next(self):
+
+        if self.node_ref is None:
+            if 'data' not in self.data:
+                return None
+            node_name = self.data.keys()[0]
+            self.node_ref = self.data['data'][node_name]
+            self.path.append(node_name)
+            return self.node_ref
+
+        dpointer = self.tree_data
+        for branch in self.path:
+            if 'ps' in dpointer['data']:
+                self.path.pop()
+                self.next()
+            dpointer = dpointer['data'][branch]
+
+
 class OhioLegalScraper:
     """Scrapes one of the three documents available on the Ohio Codes website:
 
@@ -43,6 +72,23 @@ class OhioLegalScraper:
         self.scrape_data['url'] = '%s%s' % (self.base_url, self.path)
 
         self.load_cache(self.cache_file)
+
+        self.cursor = TreeSeeker(self.scrape_data)
+
+
+    def paginate(self, page, per_page=100, path=[]):
+        # Goal: Walk the data, keeping the path. When page n >= first record and n <= last record, copy path and data
+
+        out = {}
+
+        dpointer = self.scrape_data
+        for branch in path:
+            dpointer = dpointer[branch]
+
+        if 'data' in dpointer:
+
+            for sname, sdata in dpointer['data']:
+                new_path = path.append(sname)
 
 
     def scrape(self, tree_path=[], dedupe=True):
@@ -217,11 +263,25 @@ class OhioLegalScraper:
         s_par = s_text.find_all('p')
 
         if s_par is not None:
-            sect['text'] = '\n\n'.join([pg.text.strip() for pg in s_par])
+            for idx, pg in enumerate(s_par):
+                sect.setdefault('ps', [])
+                out = {'order': idx}
+
+                text = pg.text.strip()
+                out['text'] = text
+
+                classes = pg.get('class')
+                if classes:
+                    tab_depth = [x for x in classes if x.startswith('level-')].pop()
+                    if tab_depth:
+                        out['tabs'] = int(tab_depth[-1]) - 1
+
+                sect['ps'].append(out)
+
         else:
             s_span = s_text.find('span')
             if s_span is not None:
-                sect['text'] = s_span.text.strip()
+                sect['ps'] = ({'order': 0, 'text': s_span.text.strip()},)
 
         return sect
 
@@ -260,6 +320,8 @@ class OhioLegalScraper:
         except Exception as exc:
             logging.exception('Failed writing cache: %s', exc)
             raise exc
+
+
 
 
 if __name__ == '__main__':
