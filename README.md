@@ -14,7 +14,7 @@ In a python shell, configure and run the scraper from directory `ohio-law-scrape
 
 ```
 from scraper import *
-sc = OhioLegalScraper(path='ohio-revised-code', cache\_file='ohio-revised\_code.json')
+sc = OhioLegalScraper(path='ohio-revised-code', cache_file='ohio-revised_code.json')
 sc.scrape()
 ```
 

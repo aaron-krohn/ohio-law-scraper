@@ -10,34 +10,6 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
-class TreeSeeker:
-
-    def __init__(self, tree_data):
-
-        self.data = tree_data
-
-        self.path = []
-        self.node_ref = None
-
-
-    def next(self):
-
-        if self.node_ref is None:
-            if 'data' not in self.data:
-                return None
-            node_name = self.data.keys()[0]
-            self.node_ref = self.data['data'][node_name]
-            self.path.append(node_name)
-            return self.node_ref
-
-        dpointer = self.tree_data
-        for branch in self.path:
-            if 'ps' in dpointer['data']:
-                self.path.pop()
-                self.next()
-            dpointer = dpointer['data'][branch]
-
-
 class OhioLegalScraper:
     """Scrapes one of the three documents available on the Ohio Codes website:
 
